@@ -1,0 +1,14 @@
+# depslib dependency file v1.0
+1385316878 source:c:\users\brighter agyemang\documents\codeblocks\wiretricity\main.c
+	<stdio.h>
+	<stdlib.h>
+
+1385316878 source:c:\users\brighter agyemang\documents\codeblocks\wiretricity\witricitymain.c
+	<stdio.h>
+	<stdlib.h>
+
+1447944305 source:c:\users\brighter agyemang\documents\codeblocks\witricity\witricitymain.c
+	<stdio.h>
+	<stdlib.h>
+	"pbc.h"
+
