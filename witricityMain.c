@@ -28,8 +28,23 @@ typedef struct VerificationDetails
 
 typedef struct KeyExchangeDetails
 {
-
+    element_t h_u;
+    element_t upk_u;
+    element_t R_u;
+    element_t randNum;
+    element_t T_b;
+    element_t R_a;
 }KeyExchange;
+
+typedef struct ReceiverKeyExchangeDetails
+{
+    element_t h_t;
+    element_t upk_t;
+    element_t R_t;
+    element_t a;
+    element_t T_b;
+    element_t R_a;
+}ReceiverKeyExchange;
 
 typedef struct PKGDetails
 {
@@ -48,12 +63,20 @@ typedef struct Entitys
     Verify verify_P;
     PrivateKey privateKey;
     PublicKey publicKey;
+    /**
+    *An entity can only have one of these members.
+    *Thus an entity can either be a transmitter or receiver
+    *at a point in time but cannot be both.
+    *These members are kept here to conveniently group the details
+    *an entity can have in the system
+    */
     KeyExchange keyExchange;
 }Entity;
 
 void initPKG(PKG* pkg, char* systemParams);
 void initEntity(Entity* entity, PKG* pkg);
 void initVerificationDetails(Entity* entity, PKG* pkg);
+void initKeyExchangeDetails(Entity* entity, PKG* pkg);
 
 int main()
 {
@@ -233,4 +256,9 @@ void initVerificationDetails(Entity* entity, PKG* pkg)
     element_init(entity->verify_P.verify_innerMul, pkg->pairing->G1);
     element_init(entity->verify_P.verify_add, pkg->pairing->G1);
     element_init(entity->verify_P.verify, pkg->pairing->G1);
+}
+
+void initKeyExchangeDetails(Entity* entity, PKG* pkg)
+{
+
 }
