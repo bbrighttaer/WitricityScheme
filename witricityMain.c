@@ -6,6 +6,19 @@
 #define PBC_DEBUG //turn on run-time checks
 #include "pbc.h"
 
+
+typedef struct PrivateKeyDetails
+{
+    element_t R_u;
+    element_t s_u;
+    element_t usk_u;
+}PrivateKey;
+
+typedef struct PublicKeyDetails
+{
+    element_t upk_u;
+}PublicKey;
+
 typedef struct VerificationDetails
 {
     element_t verify_innerMul;
@@ -29,14 +42,12 @@ typedef struct PKGDetails
 typedef struct Entitys
 {
     element_t r_u;
-    element_t R_u;
     element_t h_u;
     element_t hx;
     element_t r_u_plus_hx;
-    element_t s_u;
-    element_t usk_u;
-    element_t upk_u;
     Verify verify_P;
+    PrivateKey privateKey;
+    PublicKey publicKey;
     KeyExchange keyExchange;
 }Entity;
 
@@ -98,8 +109,8 @@ printf("_____________________PARTIAL PRIVATE KEY GEN____________________________
             element_printf("Transmitter's r_u: %B\n\n", transmitter.r_u);
 
             //R_t
-            element_pow_zn(transmitter.R_u, pkg.P, transmitter.r_u);//R_u = r_uP
-            element_printf("Transmitter's R_u: %B\n\n", transmitter.R_u);
+            element_pow_zn(transmitter.privateKey.R_u, pkg.P, transmitter.r_u);//R_u = r_uP
+            element_printf("Transmitter's R_u: %B\n\n", transmitter.privateKey.R_u);
 
             //h_t
             element_random(transmitter.h_u);
@@ -115,13 +126,13 @@ printf("_____________________PARTIAL PRIVATE KEY GEN____________________________
                 element_printf("Transmitter's (r_u + hx): %B\n\n", transmitter.r_u_plus_hx);
 
 
-            element_invert(transmitter.s_u, transmitter.r_u_plus_hx);
-            element_printf("Transmitter's s_u: %B\n\n", transmitter.s_u);
+            element_invert(transmitter.privateKey.s_u, transmitter.r_u_plus_hx);
+            element_printf("Transmitter's s_u: %B\n\n", transmitter.privateKey.s_u);
 
             //Transmitter verification
             element_pow_zn(transmitter.verify_P.verify_innerMul, pkg.P_pub, transmitter.h_u);
-            element_add(transmitter.verify_P.verify_add, transmitter.verify_P.verify_innerMul, transmitter.R_u);
-            element_pow_zn(transmitter.verify_P.verify, transmitter.verify_P.verify_add, transmitter.s_u);
+            element_add(transmitter.verify_P.verify_add, transmitter.verify_P.verify_innerMul, transmitter.privateKey.R_u);
+            element_pow_zn(transmitter.verify_P.verify, transmitter.verify_P.verify_add, transmitter.privateKey.s_u);
             element_printf("Verify T: %B\n\n", transmitter.verify_P.verify);
 
             //Compare
@@ -137,8 +148,8 @@ printf("___________________________________________________________________\n\n"
             element_printf("Receiver's r_u: %B\n\n", receiver.r_u);
 
             //R_r
-            element_pow_zn(receiver.R_u, pkg.P, receiver.r_u);//R_u = r_uP
-            element_printf("Receiver's R_u: %B\n\n", receiver.R_u);
+            element_pow_zn(receiver.privateKey.R_u, pkg.P, receiver.r_u);//R_u = r_uP
+            element_printf("Receiver's R_u: %B\n\n", receiver.privateKey.R_u);
 
             //h_r
             element_random(receiver.h_u);
@@ -154,13 +165,13 @@ printf("___________________________________________________________________\n\n"
                 element_printf("Receiver's (r_u + hx): %B\n\n", receiver.r_u_plus_hx);
 
 
-            element_invert(receiver.s_u, receiver.r_u_plus_hx);
-            element_printf("Receiver's s_u: %B\n\n", receiver.s_u);
+            element_invert(receiver.privateKey.s_u, receiver.r_u_plus_hx);
+            element_printf("Receiver's s_u: %B\n\n", receiver.privateKey.s_u);
 
             //Receiver verification
             element_pow_zn(receiver.verify_P.verify_innerMul, pkg.P_pub, receiver.h_u);
-            element_add(receiver.verify_P.verify_add, receiver.verify_P.verify_innerMul, receiver.R_u);
-            element_pow_zn(receiver.verify_P.verify, receiver.verify_P.verify_add, receiver.s_u);
+            element_add(receiver.verify_P.verify_add, receiver.verify_P.verify_innerMul, receiver.privateKey.R_u);
+            element_pow_zn(receiver.verify_P.verify, receiver.verify_P.verify_add, receiver.privateKey.s_u);
             element_printf("Verify T: %B\n\n", receiver.verify_P.verify);
 
             //Compare
@@ -171,22 +182,22 @@ printf("_____________________KEY GEN_____________________________________\n\n");
 
         //Transmitter
             //Private key
-            element_random(transmitter.usk_u);
-            element_printf("Transmitter's private key: %B\n\n", transmitter.usk_u);
+            element_random(transmitter.privateKey.usk_u);
+            element_printf("Transmitter's private key: %B\n\n", transmitter.privateKey.usk_u);
 
             //public key
-            element_pow_zn(transmitter.upk_u, pkg.P, transmitter.usk_u);
-            element_printf("Transmitter's public key: %B\n\n", transmitter.upk_u);
+            element_pow_zn(transmitter.publicKey.upk_u, pkg.P, transmitter.privateKey.usk_u);
+            element_printf("Transmitter's public key: %B\n\n", transmitter.publicKey.upk_u);
 
 
 
         //Receiver
             //private key
-            element_random(receiver.usk_u);
-            element_printf("Receiver's private key: %B\n\n", receiver.usk_u);
+            element_random(receiver.privateKey.usk_u);
+            element_printf("Receiver's private key: %B\n\n", receiver.privateKey.usk_u);
             //public key
-            element_pow_zn(receiver.upk_u, pkg.P, receiver.usk_u);
-            element_printf("Receiver's public key: %B\n\n", receiver.upk_u);
+            element_pow_zn(receiver.publicKey.upk_u, pkg.P, receiver.privateKey.usk_u);
+            element_printf("Receiver's public key: %B\n\n", receiver.publicKey.upk_u);
 /*
 printf("_____________________KEY EXCHANGE_____________________________________\n\n");
 */
@@ -205,13 +216,13 @@ void initPKG(PKG* pkg, char* systemParams)
 void initEntity(Entity* entity, PKG* pkg)
 {
     element_init(entity->r_u, pkg->pairing->Zr);
-    element_init(entity->R_u, pkg->pairing->G1);
+    element_init(entity->privateKey.R_u, pkg->pairing->G1);
     element_init(entity->h_u, pkg->pairing->Zr);
     element_init(entity->hx, pkg->pairing->Zr);
     element_init(entity->r_u_plus_hx, pkg->pairing->Zr);
-    element_init(entity->s_u, pkg->pairing->Zr);
-    element_init(entity->usk_u, pkg->pairing->Zr);
-    element_init(entity->upk_u, pkg->pairing->G1);
+    element_init(entity->privateKey.s_u, pkg->pairing->Zr);
+    element_init(entity->privateKey.usk_u, pkg->pairing->Zr);
+    element_init(entity->publicKey.upk_u, pkg->pairing->G1);
 
     //initialize entity's verification members
     initVerificationDetails(entity, pkg);
