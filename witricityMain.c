@@ -76,6 +76,8 @@ unsigned long convertPointToLong(element_t* el);
 char *hashFunction( char *val );
 void printToFile(char* filename, int* message);
 void printNextLine(char* filename);
+void printKey(element_t* key, const char* label);
+void keyOutput(element_t* key, void (*outputHandler)(element_t*, const char*), const char* label, char* filename);
 
 int main()
 {
@@ -289,89 +291,23 @@ printf("_____________________KEY COMPUTATION____________________________________
         int k1_sum_r=0, k1_sum_t=0;
         int k2_sum_r=0, k2_sum_t=0;
         int k3_sum_r=0, k3_sum_t=0;
-        //Hashing
+
+
+printf("_____________________KEY MANIPULATIONS_____________________________________\n");
 
         //Receiver
-        //k1
-        unsigned char char_Key1_r[size_k1_r];
-        element_to_bytes(char_Key1_r, receiver.sessionKeys.k_1);
-        printf("Key: %s\n\n", char_Key1_r);
-        printf("\n key1 size is : %i \n key1 is :", size_k1_r);
-        for(i=0;i<size_k1_r;i++)
-        {
-            k1_sum_r+= char_Key1_r[i];
-            printf("%c:%i\t",char_Key1_r[i], char_Key1_r[i]);
-        }
-        printToFile("./output/receiver.txt",&k1_sum_r);
-        printf("\nReceiver k1 sum: %i\n",k1_sum_r);
-        char *m_r = hashFunction(char_Key1_r);
-        printf("Receiver Hash Value is: %s\n", m_r);
-        //k2
-        unsigned char char_Key2_r[size_k2_r];
-        element_to_bytes(char_Key2_r, receiver.sessionKeys.k_2);
-        printf("Key: %s\n\n", char_Key2_r);
-        printf("\n key2 size is : %i \n key2 is :", size_k2_r);
-        for(i=0;i<size_k2_r;i++)
-        {
-            k2_sum_r+= char_Key2_r[i];
-            printf("%c:%i\t",char_Key2_r[i], char_Key2_r[i]);
-        }
-        printToFile("./output/receiver.txt",&k2_sum_r);
-        printf("\nReceiver k2 sum: %i\n",k2_sum_r);
-        //k3
-        unsigned char char_Key3_r[size_k3_r];
-        element_to_bytes(char_Key3_r, receiver.sessionKeys.k_3);
-        printf("Key: %s\n\n", char_Key3_r);
-        printf("\n key3 size is : %i \n key3 is :", size_k3_r);
-        for(i=0;i<size_k3_r;i++)
-        {
-            k3_sum_r+= char_Key3_r[i];
-            printf("%c:%i\t",char_Key3_r[i], char_Key3_r[i]);
-        }
-        printToFile("./output/receiver.txt",&k3_sum_r);
-        printf("\nReceiver k3 sum: %i\n",k3_sum_r);
-        printNextLine("./output/receiver.txt");
+        char* receiverfile = "./output/receiver.txt";
+        keyOutput(&receiver.sessionKeys.k_1, &printKey, "Receiver k1", receiverfile);
+        keyOutput(&receiver.sessionKeys.k_2, &printKey, "Receiver k2", receiverfile);
+        keyOutput(&receiver.sessionKeys.k_3, &printKey, "Receiver k3", receiverfile);
+        printNextLine(receiverfile);
 
         //Transmitter
-        //K1
-        unsigned char char_Key1_t[size_k1_t];
-        element_to_bytes(char_Key1_t, transmitter.sessionKeys.k_1);
-        printf("\n key1 size is : %i \n key1 is :", size_k1_t);
-        for(i=0;i<size_k1_r;i++)
-        {
-            k1_sum_t+= char_Key1_t[i];
-            printf("%c:%i\t",char_Key1_t[i],char_Key1_t[i]);
-        }
-        printToFile("./output/transmitter.txt",&k1_sum_t);
-        printf("\nTransmitter k1 sum: %i\n",k1_sum_t);
-        printf("\nNumber of iterations =%i\n",i);
-        char *m_t = hashFunction(char_Key1_t);
-        printf("Transmitter Hash Value is: %s\n", m_t);
-        //K2
-        unsigned char char_Key2_t[size_k2_t];
-        element_to_bytes(char_Key2_t, transmitter.sessionKeys.k_2);
-        printf("\n key2 size is : %i \n key2 is :", size_k2_t);
-        for(i=0;i<size_k2_r;i++)
-        {
-            k2_sum_t+= char_Key2_t[i];
-            printf("%c:%i\t",char_Key2_t[i],char_Key2_t[i]);
-        }
-        printToFile("./output/transmitter.txt",&k2_sum_t);
-        printf("\nTransmitter k2 sum: %i\n",k2_sum_t);
-        printf("\nNumber of iterations =%i\n",i);
-        //K3
-        unsigned char char_Key3_t[size_k3_t];
-        element_to_bytes(char_Key3_t, transmitter.sessionKeys.k_3);
-        printf("\n key3 size is : %i \n key3 is :", size_k3_t);
-        for(i=0;i<size_k3_r;i++)
-        {
-            k3_sum_t+= char_Key3_t[i];
-            printf("%c:%i\t",char_Key3_t[i],char_Key3_t[i]);
-        }
-        printToFile("./output/transmitter.txt",&k3_sum_t);
-        printf("\nTransmitter k3 sum: %i\n",k3_sum_t);
-        printf("\nNumber of iterations =%i\n",i);
-        printNextLine("./output/transmitter.txt");
+        char* transmitterfile = "./output/transmitter.txt";
+        keyOutput(&transmitter.sessionKeys.k_1, &printKey, "Transmitter k1", transmitterfile);
+        keyOutput(&transmitter.sessionKeys.k_2, &printKey, "Transmitter k2", transmitterfile);
+        keyOutput(&transmitter.sessionKeys.k_3, &printKey, "Transmitter k3", transmitterfile);
+        printNextLine(transmitterfile);
 
     return 0;
 }
@@ -479,4 +415,34 @@ void printNextLine(char* filename)
     fp = fopen(filename, "a");
     fprintf(fp, "\n");
     fclose(fp);
+}
+void printKey(element_t* key, const char* label)
+{
+    int i;
+    int key_length = element_length_in_bytes(*key);
+    unsigned char char_Key[key_length];
+    element_to_bytes(char_Key, *key);
+    printf("\n%s:\n",label);
+    for(i=0;i<key_length;i++)
+    {
+        printf("%c:%i\t",char_Key[i],char_Key[i]);
+    }
+    printf("\n");
+}
+void keyOutput(element_t* key, void (*outputHandler)(element_t*, const char*), const char* label, char* filename)
+{
+    int i, sum=0;
+    int key_length = element_length_in_bytes(*key);
+    unsigned char char_Key[key_length];
+    element_to_bytes(char_Key, *key);
+    for(i=0;i<key_length;i++)
+    {
+        sum+= char_Key[i];
+    }
+    printToFile(filename,&sum);
+    outputHandler(key, label);
+    printf("%s sum: %i\n\n",label, sum);
+    /*
+    char *m_r = hashFunction(char_Key1_r);
+    printf("Receiver Hash Value is: %s\n", m_r);*/
 }
