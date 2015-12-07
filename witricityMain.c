@@ -287,12 +287,6 @@ printf("_____________________KEY COMPUTATION____________________________________
         int size_k2_t = element_length_in_bytes(transmitter.sessionKeys.k_2);
         int size_k3_t = element_length_in_bytes(transmitter.sessionKeys.k_3);
 
-        int i;
-        int k1_sum_r=0, k1_sum_t=0;
-        int k2_sum_r=0, k2_sum_t=0;
-        int k3_sum_r=0, k3_sum_t=0;
-
-
 printf("_____________________KEY MANIPULATIONS_____________________________________\n");
 
         //Receiver
